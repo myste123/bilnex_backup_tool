@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ERP UI - Statik</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="sidebar__top">
+          <div class="sidebar__section-title">Menü</div>
+          <nav class="sidebar__nav">
+            <button class="sidebar__item is-active" data-route="dashboard">
+              <span class="icon" aria-hidden="true"></span>
+              <span class="label">Ana Menü</span>
+            </button>
+            <button class="sidebar__item" data-route="invoices">
+              <span class="icon" aria-hidden="true"></span>
+              <span class="label">Faturalar</span>
+            </button>
+            <button class="sidebar__item" data-route="stock">
+              <span class="icon" aria-hidden="true"></span>
+              <span class="label">Stok Yönetimi</span>
+            </button>
+            <button class="sidebar__item" data-route="customers">
+              <span class="icon" aria-hidden="true"></span>
+              <span class="label">Cari Hesaplar</span>
+            </button>
+            <button class="sidebar__item" data-route="cashbank">
+              <span class="icon" aria-hidden="true"></span>
+              <span class="label">Kasa & Banka</span>
+            </button>
+            <button class="sidebar__item" data-route="incomeexpense">
+              <span class="icon" aria-hidden="true"></span>
+              <span class="label">Gelir–Gider</span>
+            </button>
+            <button class="sidebar__item" data-route="retail">
+              <span class="icon" aria-hidden="true"></span>
+              <span class="label">Perakende Satış</span>
+            </button>
+            <button class="sidebar__item" data-route="reports">
+              <span class="icon" aria-hidden="true"></span>
+              <span class="label">Raporlar</span>
+            </button>
+            <button class="sidebar__item" data-route="users">
+              <span class="icon" aria-hidden="true"></span>
+              <span class="label">Kullanıcı Yönetimi</span>
+            </button>
+          </nav>
+        </div>
+        <div class="sidebar__bottom">
+          <button class="sidebar__item" data-route="settings">
+            <span class="icon" aria-hidden="true"></span>
+            <span class="label">Ayarlar</span>
+          </button>
+        </div>
+      </aside>
+
+      <header class="topbar">
+        <div class="topbar__left">
+          <div class="logo" aria-label="Logo">
+            <div class="logo__box"></div>
+            <div class="logo__text">ERP</div>
+          </div>
+        </div>
+        <div class="topbar__right">
+          <input class="search" type="search" placeholder="Ara" />
+          <button class="icon-button" title="Bildirimler" aria-label="Bildirimler">
+            <span class="icon-bell"></span>
+          </button>
+          <div class="avatar" title="Kullanıcı"></div>
+        </div>
+      </header>
+
+      <main class="content">
+        <!-- Dashboard -->
+        <section id="view-dashboard" class="view is-visible">
+          <h1 class="view-title">Ana Menü</h1>
+          <div class="grid cards-4">
+            <div class="card metric-card">
+              <div class="metric-label">Toplam Satış</div>
+              <div class="metric-value" id="metric-total-sales">₺0</div>
+              <canvas id="mini-chart-sales" class="mini-chart" width="100" height="24"></canvas>
+            </div>
+            <div class="card metric-card">
+              <div class="metric-label">Kar</div>
+              <div class="metric-value" id="metric-profit">₺0</div>
+              <canvas id="mini-chart-profit" class="mini-chart" width="100" height="24"></canvas>
+            </div>
+            <div class="card metric-card">
+              <div class="metric-label">Toplam Müşteri</div>
+              <div class="metric-value" id="metric-customers">0</div>
+              <canvas id="mini-chart-customers" class="mini-chart" width="100" height="24"></canvas>
+            </div>
+            <div class="card metric-card">
+              <div class="metric-label">Bekleyen Tahsilatlar</div>
+              <div class="metric-value" id="metric-receivables">₺0</div>
+              <canvas id="mini-chart-receivables" class="mini-chart" width="100" height="24"></canvas>
+            </div>
+          </div>
+
+          <div class="grid charts">
+            <div class="card chart-card" style="width: 800px; height: 400px;">
+              <div class="chart-title">Satış Grafiği</div>
+              <canvas id="chart-sales" width="800" height="400"></canvas>
+            </div>
+            <div class="card chart-card" style="width: 400px; height: 400px;">
+              <div class="chart-title">Tahsilat / Gider Dağılımı</div>
+              <canvas id="chart-distribution" width="400" height="400"></canvas>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="table-title">Son 10 İşlem</div>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th class="th-left">Tarih</th>
+                  <th class="th-left">İşlem</th>
+                  <th class="th-right">Tutar</th>
+                </tr>
+              </thead>
+              <tbody id="last-transactions-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Faturalar -->
+        <section id="view-invoices" class="view">
+          <h1 class="view-title">Faturalar</h1>
+          <div class="tabs">
+            <button class="tab is-active" data-invtab="all">Tümü</button>
+            <button class="tab" data-invtab="pending">Bekleyen</button>
+            <button class="tab" data-invtab="paid">Ödenmiş</button>
+            <button class="tab" data-invtab="canceled">İptal</button>
+          </div>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Fatura No</th>
+                  <th>Cari</th>
+                  <th class="th-right">Tutar</th>
+                  <th>Durum</th>
+                  <th>Tarih</th>
+                </tr>
+              </thead>
+              <tbody id="invoices-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Stok Yönetimi -->
+        <section id="view-stock" class="view">
+          <h1 class="view-title">Stok Yönetimi</h1>
+          <div class="toolbar-right">
+            <button class="btn-primary">+ Yeni Ürün</button>
+          </div>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Kod</th>
+                  <th>Ürün Adı</th>
+                  <th>Mevcut Stok</th>
+                  <th class="th-right">Fiyat</th>
+                  <th>Kritik Stok</th>
+                </tr>
+              </thead>
+              <tbody id="stock-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Cari Hesaplar -->
+        <section id="view-customers" class="view">
+          <h1 class="view-title">Cari Hesaplar</h1>
+          <div class="split">
+            <div class="split-left" style="width: 300px;">
+              <div id="customer-list" class="list-cards"></div>
+            </div>
+            <div class="split-right" style="width: 900px;">
+              <div class="card">
+                <div class="grid small-cards" id="customer-summary"></div>
+                <div class="table-title">Hesap Geçmişi</div>
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Tarih</th>
+                      <th>Açıklama</th>
+                      <th class="th-right">Tutar</th>
+                    </tr>
+                  </thead>
+                  <tbody id="customer-history"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Kasa & Banka -->
+        <section id="view-cashbank" class="view">
+          <h1 class="view-title">Kasa & Banka</h1>
+          <div class="grid cards-4" id="cashbank-summaries"></div>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>İşlem Tarihi</th>
+                  <th>Açıklama</th>
+                  <th class="th-right">Tutar</th>
+                </tr>
+              </thead>
+              <tbody id="cashbank-table"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Gelir–Gider -->
+        <section id="view-incomeexpense" class="view">
+          <h1 class="view-title">Gelir–Gider</h1>
+          <div class="filter-bar">
+            <label>
+              Tarih Başlangıç
+              <input type="date" id="ie-start" />
+            </label>
+            <label>
+              Tarih Bitiş
+              <input type="date" id="ie-end" />
+            </label>
+            <button class="btn-secondary" id="ie-apply">Uygula</button>
+          </div>
+          <div class="grid charts">
+            <div class="card chart-card" style="width: 600px; height: 400px;">
+              <div class="chart-title">Gelir / Gider Karşılaştırma</div>
+              <canvas id="chart-incomeexpense" width="600" height="400"></canvas>
+            </div>
+            <div class="grid small-cards" id="ie-summary"></div>
+          </div>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Kategori</th>
+                  <th class="th-right">Tutar</th>
+                  <th>Tarih</th>
+                </tr>
+              </thead>
+              <tbody id="ie-table"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Perakende Satış -->
+        <section id="view-retail" class="view">
+          <h1 class="view-title">Perakende Satış</h1>
+          <div class="retail-layout">
+            <div class="retail-products">
+              <div id="retail-products-grid" class="product-grid"></div>
+            </div>
+            <div class="retail-receipt">
+              <div class="card" style="width: 400px;">
+                <div class="table-title">Fiş</div>
+                <div id="receipt-items" class="receipt-items"></div>
+                <div class="receipt-totals">
+                  <div><span>Ara Toplam</span><span id="receipt-subtotal">₺0</span></div>
+                  <div><span>KDV</span><span id="receipt-vat">₺0</span></div>
+                  <div class="total"><span>Genel Toplam</span><span id="receipt-total">₺0</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="retail-cart">
+              <div class="card">
+                <div class="table-title">Sepet</div>
+                <div id="cart-items" class="cart-items"></div>
+                <div class="retail-actions">
+                  <button class="btn-primary big" id="btn-complete-sale">Satışı Tamamla</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Raporlar -->
+        <section id="view-reports" class="view">
+          <h1 class="view-title">Raporlar</h1>
+          <div class="filter-bar">
+            <label>
+              Tarih
+              <input type="date" />
+            </label>
+            <label>
+              Kategori
+              <select>
+                <option>Tümü</option>
+                <option>Satış</option>
+                <option>Gider</option>
+              </select>
+            </label>
+          </div>
+          <div class="grid charts">
+            <div class="card" style="flex: 1 1 0;">
+              <div class="table-title">Rapor Detayları</div>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Rapor</th>
+                    <th class="th-right">Değer</th>
+                    <th>Açıklama</th>
+                  </tr>
+                </thead>
+                <tbody id="reports-table"></tbody>
+              </table>
+            </div>
+            <div class="card chart-card" style="width: 500px; height: 400px;">
+              <div class="chart-title">Özet Grafik</div>
+              <canvas id="chart-report" width="500" height="400"></canvas>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn-secondary">PDF indir</button>
+            <button class="btn-secondary">Excel indir</button>
+          </div>
+        </section>
+
+        <!-- Kullanıcı Yönetimi -->
+        <section id="view-users" class="view">
+          <h1 class="view-title">Kullanıcı Yönetimi</h1>
+          <div class="split">
+            <div class="split-left" style="width: 300px;">
+              <div id="user-list" class="list-cards"></div>
+            </div>
+            <div class="split-right" style="width: 900px;">
+              <div class="card">
+                <div class="form">
+                  <div class="form-row">
+                    <label>İsim</label>
+                    <input type="text" id="user-name" class="input" />
+                  </div>
+                  <div class="form-row">
+                    <label>Email</label>
+                    <input type="email" id="user-email" class="input" />
+                  </div>
+                  <div class="form-row">
+                    <label>Rol</label>
+                    <select id="user-role" class="input">
+                      <option>Admin</option>
+                      <option>Satış</option>
+                      <option>Muhasebe</option>
+                    </select>
+                  </div>
+                  <div class="form-row">
+                    <label>Şifre</label>
+                    <input type="password" class="input" placeholder="Yeni şifre" />
+                  </div>
+                  <div class="actions">
+                    <button class="btn-primary">Kaydet</button>
+                    <button class="btn-secondary">Şifre Sıfırla</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Ayarlar -->
+        <section id="view-settings" class="view">
+          <h1 class="view-title">Ayarlar</h1>
+          <div class="tabs">
+            <button class="tab is-active" data-settab="company">Şirket Bilgileri</button>
+            <button class="tab" data-settab="tax">Vergi</button>
+            <button class="tab" data-settab="theme">Tema</button>
+            <button class="tab" data-settab="api">API bağlantıları</button>
+          </div>
+          <div class="card">
+            <div id="settings-panels">
+              <div class="settings-panel is-visible" data-panel="company">
+                <div class="form">
+                  <div class="form-row">
+                    <label>Şirket Adı</label>
+                    <input class="input" type="text" />
+                  </div>
+                  <div class="form-row">
+                    <label>Adres</label>
+                    <input class="input" type="text" />
+                  </div>
+                  <div class="form-row">
+                    <label>Telefon</label>
+                    <input class="input" type="tel" />
+                  </div>
+                  <div class="actions">
+                    <button class="btn-primary">Kaydet</button>
+                  </div>
+                </div>
+              </div>
+              <div class="settings-panel" data-panel="tax">
+                <div class="form">
+                  <div class="form-row">
+                    <label>Vergi Oranı (%)</label>
+                    <input class="input" type="number" value="20" />
+                  </div>
+                  <div class="actions">
+                    <button class="btn-primary">Kaydet</button>
+                  </div>
+                </div>
+              </div>
+              <div class="settings-panel" data-panel="theme">
+                <div class="form">
+                  <div class="form-row">
+                    <label>Tema</label>
+                    <select class="input">
+                      <option>Modern Beyaz</option>
+                    </select>
+                  </div>
+                  <div class="actions">
+                    <button class="btn-primary">Kaydet</button>
+                  </div>
+                </div>
+              </div>
+              <div class="settings-panel" data-panel="api">
+                <div class="form">
+                  <div class="form-row">
+                    <label>API Anahtarı</label>
+                    <input class="input" type="text" placeholder="xxxx-xxxx" />
+                  </div>
+                  <div class="actions">
+                    <button class="btn-primary">Kaydet</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+  </html>
+
